@@ -1,0 +1,23 @@
+# Segredos e credenciais
+.env
+.ms_token_cache.bin
+*.bin
+
+# Saída gerada
+saida/
+*.xlsx
+
+# Dados de negócio (não versionar informações reais dos projetos)
+dados/
+*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Sistema
+.DS_Store
+Thumbs.db

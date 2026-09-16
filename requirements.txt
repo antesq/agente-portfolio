@@ -1,0 +1,18 @@
+# Núcleo do agente
+anthropic>=0.40.0          # SDK oficial da Claude API
+
+# Integrações
+smartsheet-python-sdk>=3.0.0   # Smartsheet (SDK oficial)
+msal>=1.28.0                   # Autenticação Microsoft (Graph / Outlook 365)
+requests>=2.31.0              # Chamadas REST ao Microsoft Graph
+
+# Geração de planilhas
+openpyxl>=3.1.2              # Escrita de arquivos .xlsx
+
+# Leitura do WhatsApp Desktop pela tela (Windows)
+mss>=9.0.1                   # Captura de tela rápida
+pygetwindow>=0.0.9          # Localizar a janela do WhatsApp
+Pillow>=10.0.0             # Manipulação de imagem antes de enviar ao Claude
+
+# Utilitários
+python-dotenv>=1.0.0        # Carregar variáveis de ambiente do arquivo .env
