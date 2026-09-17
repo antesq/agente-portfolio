@@ -3,6 +3,10 @@
 Fornece funções simples que o agente chama como ferramentas:
   - listar_planilhas(): quais sheets existem na conta.
   - ler_planilha(id_ou_nome): conteúdo de uma sheet como linhas/colunas.
+
+IMPORTANTE: este módulo é SOMENTE LEITURA por design (não há nenhuma chamada de
+escrita/atualização/exclusão). Regra do projeto: nunca modificar/testar no
+Smartsheet de produção — usar sempre a área de homologação.
 """
 from __future__ import annotations
 
