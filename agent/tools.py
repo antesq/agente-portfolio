@@ -38,16 +38,34 @@ DEFINICOES: list[dict[str, Any]] = [
     {
         "name": "ler_emails_outlook",
         "description": (
-            "Lê e-mails recentes do Outlook 365. Use 'busca' para achar propostas "
-            "(ex.: 'proposta técnica', 'PPT-BR', nome da unidade ou cidade)."
+            "Lê e-mails do Outlook 365 (histórico completo por padrão). Use 'busca' "
+            "para achar propostas (ex.: 'proposta técnica', 'PPT-BR', unidade ou cidade). "
+            "Retorna metadados + prévia e o 'id' de cada e-mail (útil para baixar anexos)."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
                 "quantidade": {"type": "integer", "description": "Quantos e-mails (padrão 15, máx 50)."},
-                "pasta": {"type": "string", "description": "inbox (padrão), sentitems, etc."},
+                "pasta": {"type": "string", "description": "Omita para buscar em TODA a caixa. Ou 'inbox', 'sentitems'..."},
                 "busca": {"type": "string", "description": "Texto para filtrar assunto/corpo/remetente."},
                 "apenas_nao_lidos": {"type": "boolean"},
+                "apenas_com_anexo": {"type": "boolean", "description": "Só e-mails com anexos."},
+            },
+        },
+    },
+    {
+        "name": "buscar_propostas_email",
+        "description": (
+            "Busca no histórico de e-mails as mensagens de PROPOSTA que tenham anexos e "
+            "BAIXA os PDFs/XLSX de cada uma para uma pasta local. Retorna a lista de pastas. "
+            "Depois use 'ler_documentos_proposta' em cada pasta para extrair os dados."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "busca": {"type": "string", "description": "Termo de busca (padrão 'proposta'). Ex.: 'proposta técnica', 'PPT-BR', unidade."},
+                "max_emails": {"type": "integer", "description": "Máximo de e-mails a processar (padrão 10)."},
+                "pasta": {"type": "string", "description": "Omita para toda a caixa. Ou 'inbox', etc."},
             },
         },
     },
@@ -195,9 +213,17 @@ class CaixaDeFerramentas:
     def _ft_ler_emails_outlook(self, e: dict) -> str:
         return _json(outlook_client.ler_emails(
             quantidade=e.get("quantidade", 15),
-            pasta=e.get("pasta", "inbox"),
+            pasta=e.get("pasta"),                      # None = toda a caixa
             busca=e.get("busca"),
             apenas_nao_lidos=e.get("apenas_nao_lidos", False),
+            apenas_com_anexo=e.get("apenas_com_anexo", False),
+        ))
+
+    def _ft_buscar_propostas_email(self, e: dict) -> str:
+        return _json(outlook_client.baixar_propostas(
+            busca=e.get("busca", "proposta"),
+            max_emails=e.get("max_emails", 10),
+            pasta=e.get("pasta"),
         ))
 
     def _ft_listar_documentos_pasta(self, e: dict) -> str:
