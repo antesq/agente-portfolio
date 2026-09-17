@@ -34,8 +34,17 @@ WHATSAPP_WINDOW_TITLE = os.getenv("WHATSAPP_WINDOW_TITLE", "WhatsApp")
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", BASE_DIR / "saida"))
 
 
+# Valores de exemplo do .env.example que NÃO contam como configurados.
+_PLACEHOLDERS = {"sk-ant-...", ""}
+
+
+def configurado(valor: str) -> bool:
+    """True se o valor foi realmente preenchido (não vazio nem placeholder)."""
+    return valor.strip() not in _PLACEHOLDERS
+
+
 def validar(requeridos: list[str]) -> list[str]:
-    """Retorna a lista de variáveis obrigatórias que estão vazias.
+    """Retorna a lista de variáveis obrigatórias que estão vazias/placeholder.
 
     Use no início de cada comando para dar uma mensagem de erro amigável
     em vez de estourar uma exceção obscura lá na frente.
@@ -45,4 +54,4 @@ def validar(requeridos: list[str]) -> list[str]:
         "SMARTSHEET_ACCESS_TOKEN": SMARTSHEET_ACCESS_TOKEN,
         "MS_CLIENT_ID": MS_CLIENT_ID,
     }
-    return [nome for nome in requeridos if not mapa.get(nome)]
+    return [nome for nome in requeridos if not configurado(mapa.get(nome, ""))]

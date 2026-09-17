@@ -24,9 +24,9 @@ def verificar_config() -> None:
     """Imprime o estado de cada credencial (sem revelar valores)."""
     print("Verificação de configuração:\n")
     checagens = [
-        ("ANTHROPIC_API_KEY (Claude)", bool(config.ANTHROPIC_API_KEY)),
-        ("SMARTSHEET_ACCESS_TOKEN", bool(config.SMARTSHEET_ACCESS_TOKEN)),
-        ("MS_CLIENT_ID (Outlook/Graph)", bool(config.MS_CLIENT_ID)),
+        ("ANTHROPIC_API_KEY (Claude)", config.configurado(config.ANTHROPIC_API_KEY)),
+        ("SMARTSHEET_ACCESS_TOKEN", config.configurado(config.SMARTSHEET_ACCESS_TOKEN)),
+        ("MS_CLIENT_ID (Outlook/Graph)", config.configurado(config.MS_CLIENT_ID)),
     ]
     for nome, ok in checagens:
         print(f"  {'✅' if ok else '❌'}  {nome}")
