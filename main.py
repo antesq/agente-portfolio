@@ -6,6 +6,8 @@ Uso:
     python main.py --check                # verifica a configuração (chaves/credenciais)
     python main.py --importar-csv arq.csv # carga inicial a partir de um CSV da planilha
     python main.py --exportar             # gera a planilha Excel do portfólio atual
+    python main.py --carregamentos        # visão de carregamentos BR (Smartsheet) e publica no Teams
+    python main.py --carregamentos --sem-publicar  # só gera o Excel, sem postar no canal
 
 Exemplos de pedido:
     "Leia a planilha MELI do Smartsheet e me mostre os projetos em atraso."
@@ -87,6 +89,17 @@ def exportar() -> None:
     print(f"✅ Planilha gerada em: {caminho}")
 
 
+def carregamentos(publicar: bool = True) -> None:
+    from integrations import carregamentos as carg
+
+    print("Lendo cronogramas dos projetos BR no Smartsheet (pode demorar)...")
+    r = carg.gerar_e_publicar(publicar=publicar)
+    print(f"✅ {r['total_projetos']} projetos processados.")
+    print(f"📄 Excel: {r['excel']}")
+    if publicar:
+        print(f"📢 Publicado no Teams: {r.get('teams')}")
+
+
 def main() -> None:
     args = sys.argv[1:]
     if args and args[0] == "--check":
@@ -100,6 +113,10 @@ def main() -> None:
         return
     if args and args[0] == "--exportar":
         exportar()
+        return
+    if args and args[0] == "--carregamentos":
+        # --carregamentos [--sem-publicar]
+        carregamentos(publicar="--sem-publicar" not in args)
         return
     # Barreira mínima: precisa da chave do Claude.
     if config.validar(["ANTHROPIC_API_KEY"]):

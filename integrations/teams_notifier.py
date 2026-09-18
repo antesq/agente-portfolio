@@ -40,6 +40,11 @@ def _postar_card(card: dict[str, Any]) -> dict[str, Any]:
     return {"status": resp.status_code, "ok": True}
 
 
+def publicar_card(card: dict[str, Any]) -> dict[str, Any]:
+    """Publica um Adaptive Card já montado no canal."""
+    return _postar_card(card)
+
+
 def enviar_mensagem(texto: str, titulo: str = "Agente de Portfólio") -> dict[str, Any]:
     """Posta uma mensagem de texto simples no canal."""
     card = {
