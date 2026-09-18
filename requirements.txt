@@ -9,10 +9,7 @@ requests>=2.31.0              # Chamadas REST ao Microsoft Graph
 # Geração de planilhas
 openpyxl>=3.1.2              # Escrita de arquivos .xlsx
 
-# Leitura do WhatsApp Desktop pela tela (Windows)
-mss>=9.0.1                   # Captura de tela rápida
-pygetwindow>=0.0.9          # Localizar a janela do WhatsApp
-Pillow>=10.0.0             # Manipulação de imagem antes de enviar ao Claude
+# (WhatsApp Desktop é opcional e só no Windows — veja requirements-desktop.txt)
 
 # Dashboard web (BI ao vivo)
 streamlit>=1.36.0           # App web do painel de BI

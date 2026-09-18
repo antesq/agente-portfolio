@@ -1,0 +1,6 @@
+# Dependências APENAS para a leitura do WhatsApp Desktop (Windows, uso local).
+# Não são necessárias no deploy web (Streamlit Cloud / Linux).
+# Instale com:  pip install -r requirements-desktop.txt
+mss>=9.0.1                   # Captura de tela rápida
+pygetwindow>=0.0.9          # Localizar a janela do WhatsApp
+Pillow>=10.0.0             # Manipulação de imagem antes de enviar ao Claude

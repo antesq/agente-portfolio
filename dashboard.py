@@ -11,15 +11,26 @@ adicionar login Microsoft (Entra ID) restrito ao tenant da INSTALL.
 """
 from __future__ import annotations
 
-from datetime import datetime
+import os
 
-import pandas as pd
 import streamlit as st
 
-import config
-from integrations import carregamentos as carg
-
 st.set_page_config(page_title="BI Carregamentos — Install", page_icon="🚚", layout="wide")
+
+# Em deploy (Streamlit Cloud) os segredos vêm de st.secrets. Trazemos para as
+# variáveis de ambiente ANTES de importar config (que lê o ambiente na importação).
+try:
+    for _k in st.secrets:
+        os.environ.setdefault(_k, str(st.secrets[_k]))
+except Exception:
+    pass
+
+from datetime import datetime  # noqa: E402
+
+import pandas as pd  # noqa: E402
+
+import config  # noqa: E402
+from integrations import carregamentos as carg  # noqa: E402
 
 _ORDEM = ["Atrasado", "Esta semana", "Próx. 2 semanas", "Futuro", "Sem data", "Concluído"]
 _CORES = {
