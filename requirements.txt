@@ -12,8 +12,9 @@ openpyxl>=3.1.2              # Escrita de arquivos .xlsx
 # (WhatsApp Desktop é opcional e só no Windows — veja requirements-desktop.txt)
 
 # Dashboard web (BI ao vivo)
-streamlit>=1.36.0           # App web do painel de BI
+streamlit>=1.42.0           # App web do painel de BI (>=1.42 para st.login/OIDC)
 pandas>=2.2.0              # Tabelas/análise no dashboard
+Authlib>=1.3.2            # Login OIDC (st.login) — Microsoft Entra ID
 
 # Utilitários
 python-dotenv>=1.0.0        # Carregar variáveis de ambiente do arquivo .env

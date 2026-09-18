@@ -37,6 +37,32 @@ _CORES = {
     "Atrasado": "#E74C3C", "Esta semana": "#F1C40F", "Próx. 2 semanas": "#2ECC71",
     "Futuro": "#5DADE2", "Sem data": "#BDC3C7", "Concluído": "#27AE60",
 }
+# Domínios de e-mail autorizados a ver o painel (login Microsoft).
+_DOMINIOS_PERMITIDOS = ("installequipamentos.com.br",)
+
+
+def _autenticar() -> None:
+    """Se a seção [auth] existir nos secrets (deploy), exige login Microsoft do
+    tenant da INSTALL. Sem [auth] (uso local), o app roda aberto normalmente."""
+    try:
+        tem_auth = "auth" in st.secrets
+    except Exception:
+        tem_auth = False
+    if not tem_auth:
+        return  # ambiente local sem login configurado
+
+    if not getattr(st, "user", None) or not st.user.is_logged_in:
+        st.title("🔒 Carregamentos Install — acesso restrito")
+        st.write("Entre com sua conta **Microsoft da INSTALL** para ver o painel.")
+        st.button("Entrar com a Microsoft", type="primary",
+                  on_click=st.login, args=("microsoft",))
+        st.stop()
+
+    email = str(st.user.get("email") or st.user.get("preferred_username") or "").lower()
+    if _DOMINIOS_PERMITIDOS and not any(email.endswith("@" + d) for d in _DOMINIOS_PERMITIDOS):
+        st.error(f"Acesso não autorizado para: {email or 'conta sem e-mail'}.")
+        st.button("Sair", on_click=st.logout)
+        st.stop()
 
 
 @st.cache_data(ttl=1800, show_spinner="Lendo cronogramas do Smartsheet (BR Projetos)...")
@@ -46,6 +72,8 @@ def carregar_dados() -> pd.DataFrame:
 
 
 def main() -> None:
+    _autenticar()  # portão de login (só ativo quando [auth] está nos secrets)
+
     st.title("🚚 Carregamentos Install — Projetos BR")
 
     if not config.configurado(config.SMARTSHEET_ACCESS_TOKEN):
@@ -55,6 +83,9 @@ def main() -> None:
     # --- Sidebar: controles ---
     with st.sidebar:
         st.header("Filtros")
+        if getattr(st, "user", None) and getattr(st.user, "is_logged_in", False):
+            st.caption(f"👤 {st.user.get('name') or st.user.get('email', '')}")
+            st.button("Sair", on_click=st.logout)
         if st.button("🔄 Atualizar dados (recarregar do Smartsheet)"):
             st.cache_data.clear()
             st.rerun()
