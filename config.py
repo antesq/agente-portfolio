@@ -26,6 +26,9 @@ MS_CLIENT_ID = os.getenv("MS_CLIENT_ID", "")
 MS_TENANT_ID = os.getenv("MS_TENANT_ID", "common")
 MS_TOKEN_CACHE = os.getenv("MS_TOKEN_CACHE", ".ms_token_cache.bin")
 MS_SCOPES = ["Mail.Read"]  # permissões delegadas solicitadas ao Graph
+# "interactive" = login pelo navegador (recomendado; usa sua sessão/MFA normal).
+# "device"      = login por código (microsoft.com/devicelogin) — pode ser bloqueado.
+MS_AUTH_MODE = os.getenv("MS_AUTH_MODE", "interactive")
 
 # --- WhatsApp -------------------------------------------------------------
 WHATSAPP_WINDOW_TITLE = os.getenv("WHATSAPP_WINDOW_TITLE", "WhatsApp")

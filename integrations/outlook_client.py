@@ -4,8 +4,16 @@ Usa MSAL com o fluxo "device code": na primeira execução, o programa mostra
 um código e um link (microsoft.com/devicelogin) para você autorizar no
 navegador. O token fica em cache (MS_TOKEN_CACHE) para as próximas vezes.
 
+Autenticação (config MS_AUTH_MODE):
+  - "interactive" (padrão): abre o navegador, você loga com sua conta normal
+    (MFA de sempre) e é redirecionado para http://localhost. Recomendado —
+    funciona onde o login por código é bloqueado.
+  - "device": mostra um código para digitar em microsoft.com/devicelogin.
+
 Requer um App Registration no Azure AD com:
   - Permissão delegada: Mail.Read
+  - Plataforma "Mobile and desktop applications" com redirect http://localhost
+    (necessário para o modo interactive)
   - "Allow public client flows" = Yes
 
 Funções principais:
@@ -66,21 +74,41 @@ def _obter_token() -> str:
         if resultado and "access_token" in resultado:
             return resultado["access_token"]
 
-    # 2) Sem token válido: inicia o device code flow.
-    flow = app.initiate_device_flow(scopes=config.MS_SCOPES)
-    if "user_code" not in flow:
-        raise RuntimeError(f"Falha ao iniciar login Microsoft: {flow}")
-    print("\n" + "=" * 60)
-    print("AUTORIZAÇÃO MICROSOFT NECESSÁRIA")
-    print(flow["message"])  # ex.: acesse microsoft.com/devicelogin e digite XXXX
-    print("=" * 60 + "\n")
-    resultado = app.acquire_token_by_device_flow(flow)  # bloqueia até você autorizar
+    # 2) Sem token válido: faz login conforme o modo configurado.
+    if config.MS_AUTH_MODE == "device":
+        resultado = _login_device(app)
+    else:
+        resultado = _login_interativo(app)
 
     if "access_token" not in resultado:
         raise RuntimeError(
             f"Login Microsoft falhou: {resultado.get('error_description', resultado)}"
         )
     return resultado["access_token"]
+
+
+def _login_interativo(app: msal.PublicClientApplication) -> dict:
+    """Abre o navegador para o login (redirect em http://localhost)."""
+    print("\n" + "=" * 60)
+    print("Abrindo o navegador para login Microsoft...")
+    print("Faça login com sua conta da INSTALL e autorize o acesso.")
+    print("=" * 60 + "\n")
+    return app.acquire_token_interactive(
+        scopes=config.MS_SCOPES,
+        prompt="select_account",
+    )
+
+
+def _login_device(app: msal.PublicClientApplication) -> dict:
+    """Login por código em microsoft.com/devicelogin (pode ser bloqueado)."""
+    flow = app.initiate_device_flow(scopes=config.MS_SCOPES)
+    if "user_code" not in flow:
+        raise RuntimeError(f"Falha ao iniciar login Microsoft: {flow}")
+    print("\n" + "=" * 60)
+    print("AUTORIZAÇÃO MICROSOFT NECESSÁRIA")
+    print(flow["message"])
+    print("=" * 60 + "\n")
+    return app.acquire_token_by_device_flow(flow)
 
 
 def _headers() -> dict[str, str]:
