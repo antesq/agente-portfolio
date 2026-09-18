@@ -30,6 +30,11 @@ MS_SCOPES = ["Mail.Read"]  # permissões delegadas solicitadas ao Graph
 # "device"      = login por código (microsoft.com/devicelogin) — pode ser bloqueado.
 MS_AUTH_MODE = os.getenv("MS_AUTH_MODE", "interactive")
 
+# --- Teams ----------------------------------------------------------------
+# URL do webhook (Workflow "Post to a channel when a webhook request is
+# received") do canal onde as notificações serão postadas.
+TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL", "")
+
 # --- WhatsApp -------------------------------------------------------------
 WHATSAPP_WINDOW_TITLE = os.getenv("WHATSAPP_WINDOW_TITLE", "WhatsApp")
 
