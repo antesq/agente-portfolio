@@ -85,12 +85,6 @@ def main() -> None:
     for col, cat in zip(cols, _ORDEM):
         col.metric(cat, int((df["categoria"] == cat).sum()))
 
-    # --- Gráfico por situação ---
-    st.subheader("Distribuição por situação")
-    contagem = (df["categoria"].value_counts()
-                .reindex(_ORDEM).dropna().astype(int))
-    st.bar_chart(contagem, color="#1F4E78", horizontal=True)
-
     # --- Tabela ---
     st.subheader(f"Projetos ({len(filt)})")
     tabela = filt[["codigo", "unidade", "projeto", "data_fmt", "categoria",
