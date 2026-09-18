@@ -119,10 +119,10 @@ def main() -> None:
     # --- Tabela ---
     st.subheader(f"Projetos ({len(filt)})")
     tabela = filt[["codigo", "unidade", "projeto", "data_fmt", "categoria",
-                   "pct", "responsavel"]].rename(columns={
+                   "pct"]].rename(columns={
         "codigo": "Código", "unidade": "Unidade", "projeto": "Projeto",
         "data_fmt": "Carregamento", "categoria": "Situação",
-        "pct": "% concl.", "responsavel": "Responsável"})
+        "pct": "% concl."})
 
     def _cor(v):
         return f"background-color: {_CORES.get(v, '')}; color: #111"
