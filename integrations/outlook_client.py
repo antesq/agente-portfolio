@@ -238,22 +238,38 @@ def baixar_anexos(message_id: str, destino: str | Path | None = None,
 
 def baixar_propostas(
     busca: str = "proposta",
-    max_emails: int = 10,
+    max_emails: int = 15,
     pasta: str | None = None,
+    filtrar_assunto: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Busca e-mails de proposta (com anexo) e baixa os PDFs/XLSX de cada um.
 
     Cada e-mail vira uma subpasta em dados/anexos_email. Depois use
     documentos.extrair_dados_proposta(pasta) em cada pasta retornada.
 
+    Args:
+        busca: termo enviado ao Graph (busca "fuzzy" por relevância).
+        max_emails: máximo de e-mails a avaliar.
+        pasta: None = toda a caixa.
+        filtrar_assunto: só processa e-mails cujo ASSUNTO contenha um destes
+            termos (padrão: proposta/PPT-BR/PPS-BR). Evita baixar anexo de
+            e-mail que só "casou" por relevância. Passe [] para não filtrar.
+
     Returns:
         Lista de {'assunto', 'de', 'recebido_em', 'pasta', 'arquivos'} — só os
         e-mails que realmente tinham documentos anexados.
     """
+    if filtrar_assunto is None:
+        filtrar_assunto = ["proposta", "ppt-br", "pps-br"]
+    termos = [t.lower() for t in filtrar_assunto]
+
     emails = ler_emails(quantidade=max_emails, pasta=pasta, busca=busca,
                         apenas_com_anexo=True)
     resultado = []
     for e in emails:
+        # Filtra pelo assunto para focar em e-mails que são de fato propostas.
+        if termos and not any(t in e["assunto"].lower() for t in termos):
+            continue
         try:
             baixado = baixar_anexos(e["id"])
         except Exception as ex:
