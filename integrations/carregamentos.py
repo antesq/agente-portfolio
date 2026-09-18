@@ -120,28 +120,33 @@ def _classificar(data: date | None, concluido: bool, hoje: date) -> str:
     return "Futuro"
 
 
-def montar_visao() -> list[dict[str, Any]]:
-    """Lê todos os projetos BR e devolve a lista de carregamentos classificada."""
+def _processar_projeto(item: tuple[int, str], hoje: date) -> dict[str, Any]:
+    sid, nome = item
+    info = _parse_nome(nome)
+    carga = extrair_carregamento(sid)
+    data = carga["data"] if carga else None
+    concluido = carga["concluido"] if carga else False
+    return {
+        "codigo": info["codigo"],
+        "unidade": info["unidade"],
+        "projeto": nome.strip(),
+        "data_carregamento": data,
+        "data_fmt": data.strftime("%d/%m/%Y") if data else "",
+        "pct": (carga or {}).get("pct") or "",
+        "responsavel": (carga or {}).get("responsavel") or "",
+        "categoria": _classificar(data, concluido, hoje),
+        "dias": (data - hoje).days if data else None,
+    }
+
+
+def montar_visao(max_workers: int = 8) -> list[dict[str, Any]]:
+    """Lê todos os projetos BR (em paralelo) e devolve os carregamentos classificados."""
+    from concurrent.futures import ThreadPoolExecutor
+
     hoje = date.today()
-    linhas: list[dict[str, Any]] = []
-    for sid, nome in listar_sheets_br():
-        info = _parse_nome(nome)
-        if not info["codigo"]:
-            continue  # ignora sheets que não são projetos (sem código)
-        carga = extrair_carregamento(sid)
-        data = carga["data"] if carga else None
-        concluido = carga["concluido"] if carga else False
-        linhas.append({
-            "codigo": info["codigo"],
-            "unidade": info["unidade"],
-            "projeto": nome.strip(),
-            "data_carregamento": data,
-            "data_fmt": data.strftime("%d/%m/%Y") if data else "",
-            "pct": (carga or {}).get("pct") or "",
-            "responsavel": (carga or {}).get("responsavel") or "",
-            "categoria": _classificar(data, concluido, hoje),
-            "dias": (data - hoje).days if data else None,
-        })
+    projetos = [(sid, nome) for sid, nome in listar_sheets_br() if _parse_nome(nome)["codigo"]]
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        linhas = list(ex.map(lambda it: _processar_projeto(it, hoje), projetos))
     # Ordena por data (sem data por último).
     linhas.sort(key=lambda x: (x["data_carregamento"] is None, x["data_carregamento"] or date.max))
     return linhas

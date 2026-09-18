@@ -14,5 +14,9 @@ mss>=9.0.1                   # Captura de tela rápida
 pygetwindow>=0.0.9          # Localizar a janela do WhatsApp
 Pillow>=10.0.0             # Manipulação de imagem antes de enviar ao Claude
 
+# Dashboard web (BI ao vivo)
+streamlit>=1.36.0           # App web do painel de BI
+pandas>=2.2.0              # Tabelas/análise no dashboard
+
 # Utilitários
 python-dotenv>=1.0.0        # Carregar variáveis de ambiente do arquivo .env
